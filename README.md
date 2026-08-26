@@ -112,6 +112,7 @@ npm run dev
 Compiles TypeScript files into native JS output in the `/dist` directory:
 ```bash
 npm run build
+```
 npm run start
 ```
 
