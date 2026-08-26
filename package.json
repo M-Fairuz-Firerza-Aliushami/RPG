@@ -1,0 +1,39 @@
+{
+  "name": "eclipse-rpg-bot",
+  "version": "1.0.0",
+  "description": "Production-ready Discord RPG Bot built with TypeScript, Prisma, and discord.js",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "nodemon --watch src -e ts --exec ts-node src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "lint": "eslint \"src/**/*.ts\"",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "test": "vitest run",
+    "db:migrate": "prisma migrate dev",
+    "db:seed": "ts-node prisma/seed.ts",
+    "deploy:commands": "ts-node src/deploy-commands.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.19.0",
+    "discord.js": "^14.16.1",
+    "dotenv": "^16.4.5",
+    "winston": "^3.14.2",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.16.1",
+    "@typescript-eslint/eslint-plugin": "^8.2.0",
+    "@typescript-eslint/parser": "^8.2.0",
+    "eslint": "^9.9.0",
+    "nodemon": "^3.1.4",
+    "prettier": "^3.3.3",
+    "prisma": "^5.19.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.5"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  }
+}

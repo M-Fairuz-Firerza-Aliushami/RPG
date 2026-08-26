@@ -1,0 +1,173 @@
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Character {
+  id            String             @id @map("_id") // Discord User ID String
+  name          String
+  class         String             // adventurer, merchant, explorer, blacksmith, alchemist
+  level         Int                @default(1)
+  xp            Int                @default(0)
+  gold          Int                @default(500)
+  energy        Int                @default(100)
+  hp            Int                @default(100)
+  maxHp         Int                @default(100)
+  strength      Int                @default(5)
+  defense       Int                @default(5)
+  agility       Int                @default(5)
+  intelligence  Int                @default(5)
+  luck          Int                @default(5)
+  reputation    Int                @default(0)
+  currentRegion String             @default("village")
+  createdAt     DateTime           @default(now())
+  lastActiveAt  DateTime           @default(now())
+
+  // Relations
+  inventory      InventoryItem[]
+  quests         PlayerQuest[]
+  achievements   PlayerAchievement[]
+  discoveries    PlayerDiscovery[]
+  dailyContracts DailyContract[]
+  guildMember    GuildMember?
+  marketListings MarketplaceListing[]
+}
+
+model InventoryItem {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  characterId String
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  itemId      String    // e.g., iron_ore, health_potion
+  quantity    Int       @default(1)
+  equipped    Boolean   @default(false)
+  metadata    String?   // JSON string containing durability, enchantments, etc.
+
+  @@unique([characterId, itemId, equipped])
+  @@index([characterId])
+}
+
+model PlayerQuest {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  characterId  String
+  character    Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  questId      String    // matches Quest config ID
+  status       String    // ACTIVE, COMPLETED, FAILED
+  currentStep  Int       @default(0)
+  progressData String?   // JSON string containing task progress
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@unique([characterId, questId])
+  @@index([characterId])
+}
+
+model PlayerAchievement {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  characterId   String
+  character     Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  achievementId String
+  unlockedAt    DateTime  @default(now())
+
+  @@unique([characterId, achievementId])
+  @@index([characterId])
+}
+
+model PlayerDiscovery {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  characterId  String
+  character    Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  regionId     String
+  locationId   String
+  discoveredAt DateTime  @default(now())
+
+  @@unique([characterId, regionId, locationId])
+  @@index([characterId])
+}
+
+model MarketplaceListing {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  sellerId    String
+  seller      Character @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  itemId      String
+  quantity    Int
+  price       Int       // Total price for listing
+  createdAt   DateTime  @default(now())
+  expiresAt   DateTime
+
+  @@index([sellerId])
+  @@index([itemId])
+}
+
+model Guild {
+  id          String         @id @default(auto()) @map("_id") @db.ObjectId
+  name        String         @unique
+  tag         String         @unique
+  description String?
+  xp          Int            @default(0)
+  level       Int            @default(1)
+  treasury    Int            @default(0)
+  createdAt   DateTime       @default(now())
+  members     GuildMember[]
+  upgrades    GuildUpgrade[]
+}
+
+model GuildMember {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  guildId     String    @db.ObjectId
+  guild       Guild     @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  characterId String    @unique
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  role        String    // LEADER, OFFICER, MEMBER
+  joinedAt    DateTime  @default(now())
+
+  @@index([guildId])
+}
+
+model GuildUpgrade {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  guildId String @db.ObjectId
+  guild   Guild  @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  type    String // storage, merchant, forge, expedition, treasury
+  level   Int    @default(0)
+
+  @@unique([guildId, type])
+}
+
+model WorldEvent {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  type        String    // VOLCANIC_SEASON, MERCHANTS_FESTIVAL, STRANGE_RAIN, etc.
+  status      String    // ACTIVE, COMPLETED
+  progress    Int       @default(0)
+  objective   Int       @default(10000)
+  startedAt   DateTime  @default(now())
+  endedAt     DateTime?
+}
+
+model TransactionLog {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  characterId String?
+  type        String   // BUY_SHOP, SELL_SHOP, MARKET_BUY, MARKET_SELL, QUEST_REWARD, EXPLORE_REWARD, TRADE, GUILD_DONATE
+  goldDelta   Int
+  details     String?  // JSON context string
+  createdAt   DateTime @default(now())
+
+  @@index([characterId])
+}
+
+model DailyContract {
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  characterId    String
+  character      Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  contractDate   String    // YYYY-MM-DD
+  objectives     String    // JSON string tracking task types and counts
+  completed      Boolean   @default(false)
+  rewardClaimed  Boolean   @default(false)
+  createdAt      DateTime  @default(now())
+
+  @@unique([characterId, contractDate])
+  @@index([characterId])
+}
