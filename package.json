@@ -10,7 +10,7 @@
     "lint": "eslint \"src/**/*.ts\"",
     "format": "prettier --write \"src/**/*.ts\"",
     "test": "vitest run",
-    "db:migrate": "prisma migrate dev",
+    "db:push": "prisma db push",
     "db:seed": "ts-node prisma/seed.ts",
     "deploy:commands": "ts-node src/deploy-commands.ts"
   },

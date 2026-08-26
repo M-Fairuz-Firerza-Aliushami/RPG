@@ -1,6 +1,6 @@
 # 🌌 ECLIPSE — Discord Economy RPG Bot
 
-ECLIPSE is a production-ready, highly interactive text-based MMORPG living inside Discord. It is built using **Node.js**, **TypeScript**, **discord.js v14**, **PostgreSQL**, and **Prisma ORM**.
+ECLIPSE is a production-ready, highly interactive text-based MMORPG living inside Discord. It is built using **Node.js**, **TypeScript**, **discord.js v14**, **MongoDB**, and **Prisma ORM**.
 
 Unlike generic economy bots that rely on boring commands like `/daily` or `/work`, ECLIPSE features an integrated progression loop where exploration, crafting, questing, guilds, and combat directly affect each other and shape the server's economy.
 
@@ -50,7 +50,7 @@ src/
 
 ### 1. Prerequisites
 *   [Node.js](https://nodejs.org/) v18.0.0 or higher.
-*   A running instance of [PostgreSQL](https://www.postgresql.org/).
+*   A running instance of [MongoDB](https://www.mongodb.com/).
 
 ### 2. Install Dependencies
 Clone the repository and run:
@@ -65,12 +65,12 @@ cp .env.example .env
 ```
 Open `.env` and fill in your connection string:
 ```env
-DATABASE_URL="postgresql://username:password@localhost:5432/eclipse_db?schema=public"
+DATABASE_URL="mongodb+srv://<username>:<password>@<cluster>.mongodb.net/<db_name>?retryWrites=true&w=majority"
 ```
 
-Run database migrations to generate database tables:
+Push the database schema to your MongoDB instance:
 ```bash
-npm run db:migrate
+npm run db:push
 ```
 
 Seed the database with default server parameters, sample guilds, and a showcase character (`RaiZhu`):
